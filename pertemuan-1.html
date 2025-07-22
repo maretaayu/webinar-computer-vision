@@ -1,0 +1,1870 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Computer Vision & Object Detection</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Montserrat", sans-serif;
+        background: #ffffff;
+        overflow: hidden;
+        color: #2c3e50;
+      }
+
+      .slideshow-container {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .slide {
+        display: none;
+        max-width: 1000px;
+        height: 85vh;
+        background: white;
+        border-radius: 8px;
+        padding: 50px;
+        animation: slideIn 0.4s ease-in-out;
+        overflow-y: auto;
+      }
+
+      .slide.active {
+        display: block;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateX(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .slide h1 {
+        color: #2c3e50;
+        font-size: 2.8em;
+        text-align: center;
+        margin-bottom: 25px;
+        font-weight: 600;
+        line-height: 1.2;
+      }
+
+      .slide h2 {
+        color: #34495e;
+        font-size: 2.2em;
+        margin-bottom: 30px;
+        font-weight: 600;
+        border-bottom: 3px solid #ecf0f1;
+        padding-bottom: 15px;
+      }
+
+      .slide h3 {
+        color: #5a6c7d;
+        font-size: 1.4em;
+        margin-bottom: 15px;
+        font-weight: 500;
+      }
+
+      .slide h4 {
+        color: #7f8c8d;
+        font-size: 1.2em;
+        margin-bottom: 12px;
+        font-weight: 500;
+      }
+
+      .subtitle {
+        color: #7f8c8d;
+        font-size: 1.3em;
+        text-align: center;
+        margin-bottom: 40px;
+        font-weight: 400;
+        font-style: italic;
+      }
+
+      .content {
+        font-size: 1.1em;
+        line-height: 1.7;
+        color: #34495e;
+        font-weight: 400;
+      }
+
+      .section-box {
+        background: #f8f9fa;
+        padding: 25px;
+        border-radius: 6px;
+        margin: 20px 0;
+      }
+
+      .definition-box {
+        background: #fafbfc;
+        padding: 25px;
+        border-radius: 6px;
+        margin: 20px 0;
+        border: 1px solid #e1e8ed;
+      }
+
+      .highlight-box {
+        background: #f0f8ff;
+        padding: 20px;
+        border-radius: 6px;
+        margin: 15px 0;
+      }
+
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 25px 0;
+        background: white;
+        border: 1px solid #e1e8ed;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+
+      .comparison-table th {
+        background: #f8f9fa;
+        color: #2c3e50;
+        padding: 18px;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 2px solid #e1e8ed;
+      }
+
+      .comparison-table td {
+        padding: 18px;
+        border-bottom: 1px solid #e1e8ed;
+        vertical-align: top;
+        font-weight: 400;
+      }
+
+      .comparison-table tr:hover {
+        background: #f8f9fa;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+        margin: 25px 0;
+      }
+
+      .grid-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 20px;
+        margin: 25px 0;
+      }
+
+      .card {
+        background: #fafbfc;
+        padding: 25px;
+        border-radius: 6px;
+        border: 1px solid #e1e8ed;
+        transition: all 0.3s ease;
+      }
+
+      .card:hover {
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+      }
+
+      .card-title {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 12px;
+        font-size: 1.1em;
+      }
+
+      .process-flow {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 40px 0;
+      }
+
+      .process-step {
+        text-align: center;
+        padding: 25px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        width: 22%;
+        border: 1px solid #e1e8ed;
+        min-width: 200px;
+        margin: 10px 5px;
+      }
+
+      .process-arrow {
+        font-size: 1.5em;
+        color: #7f8c8d;
+        margin: 0 10px;
+      }
+
+      .navigation {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 15px;
+        z-index: 1000;
+      }
+
+      .nav-btn {
+        background: white;
+        border: 2px solid #e1e8ed;
+        padding: 12px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1em;
+        font-weight: 500;
+        color: #2c3e50;
+        transition: all 0.3s ease;
+        font-family: "Montserrat", sans-serif;
+      }
+
+      .nav-btn:hover {
+        background: #f8f9fa;
+        border-color: #bdc3c7;
+      }
+
+      .slide-counter {
+        position: fixed;
+        top: 30px;
+        right: 30px;
+        background: white;
+        border: 2px solid #e1e8ed;
+        padding: 10px 20px;
+        border-radius: 6px;
+        color: #2c3e50;
+        font-weight: 500;
+        font-family: "Montserrat", sans-serif;
+      }
+
+      ul,
+      ol {
+        margin-left: 25px;
+        margin-top: 15px;
+      }
+
+      li {
+        margin-bottom: 12px;
+        line-height: 1.6;
+        font-weight: 400;
+      }
+
+      .center-text {
+        text-align: center;
+      }
+
+      .large-text {
+        font-size: 1.3em;
+      }
+
+      .bold {
+        font-weight: 600;
+      }
+
+      .italic {
+        font-style: italic;
+      }
+
+      .algorithm-box {
+        background: #fff;
+        border: 2px solid #e1e8ed;
+        padding: 20px;
+        border-radius: 6px;
+        margin: 15px 0;
+      }
+
+      .code-block {
+        background: #2c3e50;
+        color: #ecf0f1;
+        padding: 20px;
+        border-radius: 6px;
+        font-family: "Courier New", monospace;
+        font-size: 0.9em;
+        margin: 15px 0;
+        overflow-x: auto;
+      }
+
+      .pros-cons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+        margin: 25px 0;
+      }
+
+      .pros,
+      .cons {
+        padding: 20px;
+        border-radius: 6px;
+        border: 1px solid #e1e8ed;
+      }
+
+      .pros {
+        background: #f0fff4;
+        border-left: 4px solid #27ae60;
+      }
+
+      .cons {
+        background: #fff5f5;
+        border-left: 4px solid #e74c3c;
+      }
+
+      .timeline {
+        margin: 25px 0;
+      }
+
+      .timeline-item {
+        display: flex;
+        margin-bottom: 20px;
+        align-items: flex-start;
+      }
+
+      .timeline-year {
+        background: #2c3e50;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 4px;
+        font-weight: 600;
+        min-width: 80px;
+        text-align: center;
+        margin-right: 20px;
+      }
+
+      .timeline-content {
+        flex: 1;
+        padding: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slideshow-container">
+      <!-- Slide 1: Title -->
+      <div class="slide active">
+        <h1>Mengenal Dunia Computer Vision & Object Detection</h1>
+        <p class="subtitle">Langkah Awal Memahami Komputer yang Bisa Melihat</p>
+        <div class="content center-text" style="margin-top: 60px">
+          <p class="large-text bold" style="margin-bottom: 20px">
+            Webinar Pertemuan 1
+          </p>
+          <p style="font-size: 1.2em; color: #7f8c8d">
+            Pengenalan Konsep Dasar Computer Vision
+          </p>
+          <div
+            style="
+              margin-top: 50px;
+              padding: 25px;
+              background: #f8f9fa;
+              border-radius: 6px;
+            "
+          >
+            <p style="font-size: 1.1em">Mareta Ayu</p>
+            <p style="font-size: 1em; color: #7f8c8d; margin-top: 10px">
+              Software Engineer
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 2: Agenda -->
+      <div class="slide">
+        <h2>Agenda Pembelajaran</h2>
+        <div class="section-box">
+          <h3>Apa yang akan kita pelajari hari ini?</h3>
+          <ol>
+            <li>Pengenalan Computer Vision</li>
+            <li>Sejarah dan Evolusi Computer Vision</li>
+            <li>Cara Kerja Computer Vision</li>
+            <li>Tiga Tugas Utama: Classification, Detection, Segmentation</li>
+            <li>Aplikasi dalam Kehidupan Sehari-hari</li>
+            <li>Tools dan Framework Populer</li>
+            <li>Tantangan dalam Computer Vision</li>
+            <li>Tren dan Masa Depan</li>
+            <li>Diskusi dan Tanya Jawab</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Slide 3: Objectives -->
+      <div class="slide">
+        <h2>Tujuan Pembelajaran</h2>
+        <div class="section-box">
+          <h3>Setelah mengikuti webinar ini, peserta diharapkan dapat:</h3>
+          <ul>
+            <li>Memahami konsep dasar Computer Vision dan cara kerjanya</li>
+            <li>
+              Membedakan antara Image Classification, Object Detection, dan
+              Segmentation
+            </li>
+            <li>
+              Mengidentifikasi aplikasi Computer Vision dalam kehidupan
+              sehari-hari
+            </li>
+            <li>
+              Mengenal tools dan framework yang digunakan dalam pengembangan
+            </li>
+            <li>Memahami tantangan dan peluang di bidang Computer Vision</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Slide 4: What is Computer Vision -->
+      <div class="slide">
+        <h2>Apa Itu Computer Vision?</h2>
+        <div class="definition-box">
+          <h3>Definisi Sederhana</h3>
+          <p class="large-text">
+            Computer Vision adalah teknologi yang membuat komputer bisa
+            <span class="bold">"melihat" dan memahami</span> gambar atau video,
+            seperti cara mata manusia bekerja.
+          </p>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Apa yang Bisa Dilakukan?</div>
+            <ul>
+              <li>Mengenali objek dalam foto</li>
+              <li>Mencari wajah di gambar</li>
+              <li>Membaca teks dari foto</li>
+              <li>Memisahkan foreground dan background</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title">Contoh yang Familiar</div>
+            <ul>
+              <li>Face unlock di HP</li>
+              <li>Google Lens</li>
+              <li>Filter Instagram</li>
+              <li>Scan barcode</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 5: Analogy -->
+      <div class="slide">
+        <h2>Analogi Sederhana</h2>
+        <div class="highlight-box">
+          <h3>Bagaimana Manusia Melihat</h3>
+          <p>Ketika Anda melihat sebuah foto anjing:</p>
+          <ol>
+            <li>
+              <span class="bold">Mata</span> menangkap cahaya yang dipantulkan
+            </li>
+            <li><span class="bold">Otak</span> memproses sinyal visual</li>
+            <li>
+              <span class="bold">Pikiran</span> mengenali: "Ini anjing breed
+              Golden Retriever"
+            </li>
+            <li>
+              <span class="bold">Memori</span> mengasosiasikan dengan pengalaman
+              sebelumnya
+            </li>
+          </ol>
+        </div>
+        <div class="highlight-box">
+          <h3>Bagaimana Computer Vision Bekerja</h3>
+          <p>Komputer melakukan proses serupa:</p>
+          <ol>
+            <li>
+              <span class="bold">Kamera/Sensor</span> menangkap gambar sebagai
+              data digital
+            </li>
+            <li><span class="bold">Algoritma</span> memproses array piksel</li>
+            <li><span class="bold">Model AI</span> mengenali pola dan fitur</li>
+            <li>
+              <span class="bold">Database</span> membandingkan dengan data
+              latihan
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Slide 6: History -->
+      <div class="slide">
+        <h2>Sejarah Computer Vision</h2>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-year">1960s</div>
+            <div class="timeline-content">
+              <h4>Awal Mula</h4>
+              <p>
+                Larry Roberts mengembangkan teknik ekstraksi informasi 3D dari
+                gambar 2D
+              </p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-year">1970s</div>
+            <div class="timeline-content">
+              <h4>Pengembangan Algoritma</h4>
+              <p>
+                Pengembangan algoritma deteksi tepi dan pengenalan pola dasar
+              </p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-year">1990s</div>
+            <div class="timeline-content">
+              <h4>Machine Learning</h4>
+              <p>
+                Integrasi dengan machine learning, pengembangan Support Vector
+                Machines
+              </p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-year">2010s</div>
+            <div class="timeline-content">
+              <h4>Deep Learning Revolution</h4>
+              <p>
+                CNN (Convolutional Neural Networks) mengubah landscape Computer
+                Vision
+              </p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-year">2020s</div>
+            <div class="timeline-content">
+              <h4>Era Modern</h4>
+              <p>
+                Vision Transformers, aplikasi real-world yang luas, integrasi
+                dengan AI generatif
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 7: How It Works -->
+      <div class="slide">
+        <h2>Bagaimana Computer Vision Bekerja?</h2>
+        <div class="process-flow">
+          <div class="process-step">
+            <h4>1. Input Gambar</h4>
+            <p>Kamera atau file foto masuk ke komputer</p>
+          </div>
+          <div class="process-arrow">→</div>
+          <div class="process-step">
+            <h4>2. Analisis</h4>
+            <p>Komputer "melihat" pola, bentuk, warna</p>
+          </div>
+          <div class="process-arrow">→</div>
+          <div class="process-step">
+            <h4>3. Pengenalan</h4>
+            <p>Mencocokkan dengan database yang sudah dipelajari</p>
+          </div>
+          <div class="process-arrow">→</div>
+          <div class="process-step">
+            <h4>4. Hasil</h4>
+            <p>Memberikan jawaban: "Ini gambar kucing"</p>
+          </div>
+        </div>
+        <div class="section-box">
+          <h3>Yang Dibutuhkan</h3>
+          <div class="grid-2">
+            <div>
+              <h4>Hardware</h4>
+              <ul>
+                <li>Kamera (HP, laptop, CCTV)</li>
+                <li>Komputer untuk memproses</li>
+                <li>Internet untuk akses AI model</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Software</h4>
+              <ul>
+                <li>Aplikasi dengan fitur Computer Vision</li>
+                <li>Platform seperti Google Lens</li>
+                <li>Tools untuk developer</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 8: Types Overview -->
+      <div class="slide">
+        <h2>Tiga Tugas Utama Computer Vision</h2>
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-title">Image Classification</div>
+            <p>
+              Menentukan <span class="bold">apa</span> yang ada dalam gambar
+              secara keseluruhan
+            </p>
+            <div
+              style="
+                margin-top: 15px;
+                padding: 15px;
+                background: #f0f8ff;
+                border-radius: 4px;
+              "
+            >
+              <p class="bold">Contoh:</p>
+              <p>Gambar → "Ini adalah kucing"</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Object Detection</div>
+            <p>
+              Menentukan <span class="bold">apa saja</span> yang ada dan
+              <span class="bold">di mana</span> lokasinya
+            </p>
+            <div
+              style="
+                margin-top: 15px;
+                padding: 15px;
+                background: #f0fff4;
+                border-radius: 4px;
+              "
+            >
+              <p class="bold">Contoh:</p>
+              <p>Gambar → "2 kucing di kiri, 1 anjing di kanan"</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Image Segmentation</div>
+            <p>
+              Menentukan objek dan
+              <span class="bold">membatasi setiap piksel</span> yang termasuk
+              objek
+            </p>
+            <div
+              style="
+                margin-top: 15px;
+                padding: 15px;
+                background: #fff5f5;
+                border-radius: 4px;
+              "
+            >
+              <p class="bold">Contoh:</p>
+              <p>Setiap piksel kucing diberi warna berbeda</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 9: Image Classification Detail -->
+      <div class="slide">
+        <h2>Image Classification</h2>
+        <div class="definition-box">
+          <h3>Apa Itu Image Classification?</h3>
+          <p>
+            Komputer melihat satu gambar dan menebak apa isinya secara
+            keseluruhan. Seperti kita lihat foto dan langsung tahu "ini foto
+            anjing".
+          </p>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Ciri-ciri</div>
+            <ul>
+              <li>Satu jawaban per gambar</li>
+              <li>Tidak tahu posisi objek di mana</li>
+              <li>Fokus ke objek utama</li>
+              <li>Seperti main tebak-tebakan gambar</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title">Contoh Penggunaan</div>
+            <ul>
+              <li>Sortir foto di galeri HP</li>
+              <li>Deteksi spam di email</li>
+              <li>Moderasi konten sosial media</li>
+              <li>Identifikasi produk dari foto</li>
+            </ul>
+          </div>
+        </div>
+        <div class="pros-cons">
+          <div class="pros">
+            <h4>Kelebihan</h4>
+            <ul>
+              <li>Mudah dipahami dan digunakan</li>
+              <li>Proses cepat</li>
+              <li>Cocok untuk pemula</li>
+              <li>Banyak tools gratis tersedia</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <h4>Keterbatasan</h4>
+            <ul>
+              <li>Cuma bisa satu objek per gambar</li>
+              <li>Tidak kasih tahu lokasi objek</li>
+              <li>Bingung kalau gambar rame</li>
+              <li>Terganggu sama background</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 10: Object Detection Detail -->
+      <div class="slide">
+        <h2>Object Detection</h2>
+        <div class="definition-box">
+          <h3>Apa Itu Object Detection?</h3>
+          <p>
+            Komputer tidak hanya tahu "apa" yang ada di gambar, tapi juga tahu
+            "di mana" lokasinya. Seperti main tunjuk-tunjuk objek di foto.
+          </p>
+        </div>
+        <div class="section-box">
+          <h3>Yang Dihasilkan</h3>
+          <div class="grid-2">
+            <div>
+              <h4>Kotak Pembatas</h4>
+              <ul>
+                <li>Kotak mengelilingi objek</li>
+                <li>Menunjukkan posisi objek</li>
+                <li>Bisa banyak kotak dalam satu gambar</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Label Objek</h4>
+              <ul>
+                <li>Nama objek (mobil, orang, dll)</li>
+                <li>Tingkat kepercayaan (85% yakin ini mobil)</li>
+                <li>Urutan dari yang paling yakin</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Contoh Penggunaan</div>
+            <ul>
+              <li>Mobil otonom (deteksi pejalan kaki)</li>
+              <li>CCTV pintar</li>
+              <li>Quality control pabrik</li>
+              <li>Augmented Reality apps</li>
+              <li>Analisis pertandingan olahraga</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title">Tantangan</div>
+            <ul>
+              <li>Banyak objek dalam satu gambar</li>
+              <li>Objek besar kecil campur</li>
+              <li>Objek saling menutupi</li>
+              <li>Harus cepat untuk real-time</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 11: Segmentation Detail -->
+      <div class="slide">
+        <h2>Image Segmentation</h2>
+        <div class="definition-box">
+          <h3>Apa Itu Image Segmentation?</h3>
+          <p>
+            Komputer "mewarnai" setiap bagian gambar sesuai objeknya. Seperti
+            mewarnai buku gambar, tapi dilakukan komputer dengan sangat detail.
+          </p>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Semantic Segmentation</div>
+            <ul>
+              <li>Setiap piksel diberi warna sesuai kategori</li>
+              <li>Semua mobil warna sama</li>
+              <li>Semua pohon warna sama</li>
+              <li>Seperti mewarnai berdasarkan jenis objek</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title">Instance Segmentation</div>
+            <ul>
+              <li>Setiap objek individual punya warna beda</li>
+              <li>Mobil 1 warna merah, mobil 2 warna biru</li>
+              <li>Lebih detail dan spesifik</li>
+              <li>Bisa hitung jumlah objek</li>
+            </ul>
+          </div>
+        </div>
+        <div class="section-box">
+          <h3>Aplikasi Segmentation</h3>
+          <div class="grid-3">
+            <div class="card">
+              <div class="card-title">Photo Editing</div>
+              <p>
+                Hapus background, ganti background, edit bagian tertentu saja
+              </p>
+            </div>
+            <div class="card">
+              <div class="card-title">Medical</div>
+              <p>Analisis scan medis, identifikasi organ atau tumor</p>
+            </div>
+            <div class="card">
+              <div class="card-title">Autonomous Driving</div>
+              <p>Bedakan jalan, trotoar, kendaraan dengan sangat presisi</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 12: Task Comparison -->
+      <div class="slide">
+        <h2>Perbandingan Ketiga Tugas</h2>
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Aspek</th>
+              <th>Image Classification</th>
+              <th>Object Detection</th>
+              <th>Image Segmentation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Output</strong></td>
+              <td>Label kelas</td>
+              <td>Bounding box + label</td>
+              <td>Pixel-wise labels</td>
+            </tr>
+            <tr>
+              <td><strong>Informasi Lokasi</strong></td>
+              <td>Tidak ada</td>
+              <td>Kotak pembatas</td>
+              <td>Presisi piksel</td>
+            </tr>
+            <tr>
+              <td><strong>Multiple Objects</strong></td>
+              <td>Tidak</td>
+              <td>Ya</td>
+              <td>Ya</td>
+            </tr>
+            <tr>
+              <td><strong>Kompleksitas</strong></td>
+              <td>Rendah</td>
+              <td>Sedang</td>
+              <td>Tinggi</td>
+            </tr>
+            <tr>
+              <td><strong>Kecepatan</strong></td>
+              <td>Cepat</td>
+              <td>Sedang</td>
+              <td>Lambat</td>
+            </tr>
+            <tr>
+              <td><strong>Kebutuhan Data</strong></td>
+              <td>Sedikit</td>
+              <td>Banyak</td>
+              <td>Sangat banyak</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Slide 13: Real Applications -->
+      <div class="slide">
+        <h2>Aplikasi dalam Kehidupan Sehari-hari</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Smartphone & Social Media</div>
+            <ul>
+              <li>Face detection untuk kamera</li>
+              <li>Auto-tagging foto</li>
+              <li>Instagram/Snapchat filters</li>
+              <li>Google Lens recognition</li>
+              <li>Photo organization di galeri</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title">E-commerce & Retail</div>
+            <ul>
+              <li>Visual search produk</li>
+              <li>Virtual try-on</li>
+              <li>Inventory management</li>
+              <li>Price comparison by image</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title">Automotive</div>
+            <ul>
+              <li>Autonomous driving</li>
+              <li>Parking assistance</li>
+              <li>Traffic sign recognition</li>
+              <li>Driver monitoring system</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title">Security & Surveillance</div>
+            <ul>
+              <li>Face recognition access</li>
+              <li>Behavior analysis CCTV</li>
+              <li>Crowd monitoring</li>
+              <li>Suspicious activity detection</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title">Healthcare</div>
+            <ul>
+              <li>Medical image analysis</li>
+              <li>Skin cancer detection</li>
+              <li>X-ray interpretation</li>
+              <li>Surgery assistance</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title">Manufacturing</div>
+            <ul>
+              <li>Quality control inspection</li>
+              <li>Defect detection</li>
+              <li>Assembly line monitoring</li>
+              <li>Predictive maintenance</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 14: Popular Tools & Frameworks -->
+      <div class="slide">
+        <h2>Tools dan Framework Populer</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">YOLO (You Only Look Once)</div>
+            <p>Real-time object detection algorithm</p>
+            <div class="highlight-box">
+              <p>
+                <strong>Kelebihan:</strong> Sangat cepat, cocok untuk real-time
+              </p>
+              <p>
+                <strong>Digunakan untuk:</strong> Video surveillance, autonomous
+                vehicles
+              </p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">OpenCV</div>
+            <p>Open source computer vision library</p>
+            <div class="highlight-box">
+              <p>
+                <strong>Kelebihan:</strong> Komprehensif, banyak fungsi built-in
+              </p>
+              <p>
+                <strong>Digunakan untuk:</strong> Image processing, feature
+                detection
+              </p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">TensorFlow & Keras</div>
+            <p>Machine learning framework by Google</p>
+            <div class="highlight-box">
+              <p>
+                <strong>Kelebihan:</strong> Ecosystem lengkap, production-ready
+              </p>
+              <p>
+                <strong>Digunakan untuk:</strong> Deep learning, model
+                deployment
+              </p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">PyTorch</div>
+            <p>Deep learning framework by Facebook</p>
+            <div class="highlight-box">
+              <p>
+                <strong>Kelebihan:</strong> Dynamic graphs, research-friendly
+              </p>
+              <p><strong>Digunakan untuk:</strong> Research, prototyping</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 15: No-Code Tools -->
+      <div class="slide">
+        <h2>Tools untuk Pemula (No-Code)</h2>
+        <div class="section-box">
+          <h3>Teachable Machine (by Google)</h3>
+          <p>
+            Platform visual untuk melatih model machine learning tanpa coding
+          </p>
+          <div class="grid-2">
+            <div>
+              <h4>Fitur Utama</h4>
+              <ul>
+                <li>Drag & drop interface</li>
+                <li>Image classification</li>
+                <li>Export ke berbagai format</li>
+                <li>Gratis dan mudah digunakan</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Cara Penggunaan</h4>
+              <ol>
+                <li>Upload gambar untuk setiap kelas</li>
+                <li>Klik "Train Model"</li>
+                <li>Test dengan gambar baru</li>
+                <li>Export atau embed model</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-title">Roboflow</div>
+            <p>Platform untuk annotation dan training object detection</p>
+          </div>
+          <div class="card">
+            <div class="card-title">CreateML (Apple)</div>
+            <p>Tool untuk iOS developers tanpa coding kompleks</p>
+          </div>
+          <div class="card">
+            <div class="card-title">Azure Custom Vision</div>
+            <p>Cloud service Microsoft untuk image classification</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 16: Technical Challenges -->
+      <div class="slide">
+        <h2>Tantangan dalam Computer Vision</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Variabilitas Visual</div>
+            <ul>
+              <li>Perubahan pencahayaan</li>
+              <li>Sudut pandang berbeda</li>
+              <li>Skala objek yang beragam</li>
+              <li>Occlusion (objek tertutup)</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title">Kompleksitas Computational</div>
+            <ul>
+              <li>Real-time processing requirements</li>
+              <li>Memory dan bandwidth limitations</li>
+              <li>Power consumption (mobile devices)</li>
+              <li>Scalability issues</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title">Data dan Training</div>
+            <ul>
+              <li>Kebutuhan dataset besar</li>
+              <li>Labeling data yang akurat</li>
+              <li>Bias dalam dataset</li>
+              <li>Domain adaptation</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title">Ethical Concerns</div>
+            <ul>
+              <li>Privacy dan surveillance</li>
+              <li>Bias algoritma</li>
+              <li>Misuse potential</li>
+              <li>Transparency dalam AI decisions</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 17: Industry Impact -->
+      <div class="slide">
+        <h2>Dampak pada Industri</h2>
+        <div class="section-box">
+          <h3>Transformasi Digital</h3>
+          <p>
+            Computer Vision menjadi katalis transformasi digital di berbagai
+            sektor
+          </p>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Automation & Efficiency</div>
+            <ul>
+              <li>Mengurangi human error</li>
+              <li>Proses 24/7 tanpa istirahat</li>
+              <li>Konsistensi hasil</li>
+              <li>Cost reduction jangka panjang</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title">New Business Models</div>
+            <ul>
+              <li>Visual search platforms</li>
+              <li>Augmented reality services</li>
+              <li>Automated content moderation</li>
+              <li>Smart city solutions</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title">Job Market Changes</div>
+            <ul>
+              <li>New roles: CV engineers, data labelers</li>
+              <li>Skill requirements evolution</li>
+              <li>Automated vs human oversight</li>
+              <li>Reskilling opportunities</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title">Investment & Valuation</div>
+            <ul>
+              <li>Venture capital interest tinggi</li>
+              <li>Acquisition nilai billion dollar</li>
+              <li>IPO computer vision companies</li>
+              <li>Patent competition</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 18: Future Trends -->
+      <div class="slide">
+        <h2>Tren dan Masa Depan</h2>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-year">2024</div>
+            <div class="timeline-content">
+              <h4>Vision Transformers (ViTs)</h4>
+              <p>
+                Arsitektur baru yang menggunakan attention mechanism untuk
+                vision tasks
+              </p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-year">2025</div>
+            <div class="timeline-content">
+              <h4>Multimodal AI</h4>
+              <p>Integrasi vision dengan language models (GPT-Vision, CLIP)</p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-year">2026</div>
+            <div class="timeline-content">
+              <h4>Edge AI</h4>
+              <p>
+                Computer vision processing di device tanpa cloud connectivity
+              </p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-year">2027</div>
+            <div class="timeline-content">
+              <h4>3D Vision</h4>
+              <p>
+                Spatial computing, depth estimation, 3D object reconstruction
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="section-box">
+          <h3>Emerging Technologies</h3>
+          <div class="grid-3">
+            <div class="card">
+              <div class="card-title">Neural Radiance Fields</div>
+              <p>3D scene reconstruction dari 2D images</p>
+            </div>
+            <div class="card">
+              <div class="card-title">Generative AI + Vision</div>
+              <p>Image generation, editing, enhancement</p>
+            </div>
+            <div class="card">
+              <div class="card-title">Quantum Computer Vision</div>
+              <p>Quantum algorithms untuk pattern recognition</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 19: Getting Started -->
+      <div class="slide">
+        <h2>Mulai Dari Mana?</h2>
+        <div class="process-flow">
+          <div class="process-step">
+            <h4>1. Eksplorasi</h4>
+            <p>Coba aplikasi yang sudah ada seperti Google Lens</p>
+          </div>
+          <div class="process-arrow">→</div>
+          <div class="process-step">
+            <h4>2. No-Code Tools</h4>
+            <p>Pakai Teachable Machine untuk eksperimen</p>
+          </div>
+          <div class="process-arrow">→</div>
+          <div class="process-step">
+            <h4>3. Belajar Konsep</h4>
+            <p>Pahami cara kerja dan aplikasinya</p>
+          </div>
+          <div class="process-arrow">→</div>
+          <div class="process-step">
+            <h4>4. Practice</h4>
+            <p>Coba buat project sederhana</p>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Resource Belajar</div>
+            <ul>
+              <li>YouTube: channel edukasi AI</li>
+              <li>Online course untuk pemula</li>
+              <li>Blog dan artikel populer</li>
+              <li>Workshop online gratis</li>
+              <li>Komunitas developer Indonesia</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title">Project Pemula</div>
+            <ul>
+              <li>Classifier hewan dengan Teachable Machine</li>
+              <li>Eksperimen dengan Google Lens</li>
+              <li>Coba berbagai filter camera</li>
+              <li>Analisis foto koleksi pribadi</li>
+              <li>Dokumentasi hasil eksplorasi</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 20: Career Opportunities -->
+      <div class="slide">
+        <h2>Peluang Karir</h2>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Technical Roles</div>
+            <ul>
+              <li>
+                <strong>Computer Vision Engineer</strong> - Develop CV
+                algorithms
+              </li>
+              <li>
+                <strong>Machine Learning Engineer</strong> - Build and deploy
+                models
+              </li>
+              <li>
+                <strong>Research Scientist</strong> - Advance state-of-the-art
+              </li>
+              <li>
+                <strong>Data Scientist</strong> - Extract insights from visual
+                data
+              </li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title">Business & Product Roles</div>
+            <ul>
+              <li><strong>Product Manager</strong> - AI product strategy</li>
+              <li>
+                <strong>Technical Consultant</strong> - CV solution advisory
+              </li>
+              <li><strong>Business Analyst</strong> - CV market analysis</li>
+              <li><strong>Entrepreneur</strong> - CV startup founder</li>
+            </ul>
+          </div>
+        </div>
+        <div class="section-box">
+          <h3>Salary Ranges (Indonesia, 2024)</h3>
+          <div class="grid-2">
+            <div>
+              <h4>Entry Level (0-2 years)</h4>
+              <ul>
+                <li>Junior CV Engineer: 8-15 juta/bulan</li>
+                <li>Data Labeler: 5-8 juta/bulan</li>
+                <li>Technical Support: 6-10 juta/bulan</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Experienced (3+ years)</h4>
+              <ul>
+                <li>Senior CV Engineer: 20-40 juta/bulan</li>
+                <li>Tech Lead: 30-60 juta/bulan</li>
+                <li>Principal Engineer: 50-100 juta/bulan</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 21: Interactive Discussion -->
+      <div class="slide">
+        <h2>Mari Berdiskusi</h2>
+        <div class="section-box">
+          <h3>Pertanyaan untuk Peserta</h3>
+          <div class="grid-2">
+            <div>
+              <h4>Pengalaman Personal</h4>
+              <ul>
+                <li>
+                  Aplikasi Computer Vision apa yang paling sering Anda gunakan?
+                </li>
+                <li>Pernahkah menggunakan Google Lens? Untuk apa?</li>
+                <li>Fitur kamera smartphone mana yang paling berguna?</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Perspektif Bisnis</h4>
+              <ul>
+                <li>Di industri Anda, bagaimana CV bisa diterapkan?</li>
+                <li>Apa concern terbesar dalam adopsi CV?</li>
+                <li>ROI apa yang Anda harapkan dari implementasi CV?</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="highlight-box">
+          <h3>Quick Poll</h3>
+          <p>Siapa yang sudah pernah:</p>
+          <ul>
+            <li>Menggunakan face unlock di smartphone?</li>
+            <li>Upload gambar untuk cari produk serupa di e-commerce?</li>
+            <li>Pakai filter Instagram/TikTok?</li>
+            <li>Scan QR code atau barcode?</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Slide 22: Common Misconceptions -->
+      <div class="slide">
+        <h2>Mitos dan Realita Computer Vision</h2>
+        <div class="pros-cons">
+          <div class="cons">
+            <h4>Mitos</h4>
+            <ul>
+              <li><strong>"CV sudah 100% akurat"</strong></li>
+              <li><strong>"Hanya butuh banyak data"</strong></li>
+              <li><strong>"Akan menggantikan semua pekerjaan"</strong></li>
+              <li><strong>"Terlalu sulit dipelajari"</strong></li>
+              <li><strong>"Hanya untuk tech giants"</strong></li>
+            </ul>
+          </div>
+          <div class="pros">
+            <h4>Realita</h4>
+            <ul>
+              <li>
+                <strong>Akurasi tergantung use case dan data quality</strong>
+              </li>
+              <li>
+                <strong>Quality data > quantity, butuh domain expertise</strong>
+              </li>
+              <li>
+                <strong>Augments human capability, perlu oversight</strong>
+              </li>
+              <li><strong>Banyak no-code tools untuk memulai</strong></li>
+              <li><strong>SMEs dan startups juga bisa implementasi</strong></li>
+            </ul>
+          </div>
+        </div>
+        <div class="section-box">
+          <h3>Best Practices untuk Implementasi</h3>
+          <ul>
+            <li>Start small dengan pilot project yang jelas ROI-nya</li>
+            <li>Investasi dalam data quality dan annotation</li>
+            <li>Libatkan domain experts dalam proses development</li>
+            <li>Plan untuk continuous learning dan model updates</li>
+            <li>Pertimbangkan ethical implications dari awal</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Slide 23: Next Steps -->
+      <div class="slide">
+        <h2>Langkah Selanjutnya</h2>
+        <div class="section-box">
+          <h3>Rencana Pembelajaran Lanjutan</h3>
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-year">Week 2</div>
+              <div class="timeline-content">
+                <h4>Hands-on dengan Teachable Machine</h4>
+                <p>Membuat image classifier pertama tanpa coding</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-year">Week 3</div>
+              <div class="timeline-content">
+                <h4>Pengenalan OpenCV dan Python</h4>
+                <p>Basic image processing dan manipulation</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-year">Week 4</div>
+              <div class="timeline-content">
+                <h4>Object Detection dengan YOLO</h4>
+                <p>Implementasi real-time object detection</p>
+              </div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-year">Week 5</div>
+              <div class="timeline-content">
+                <h4>Project Capstone</h4>
+                <p>Mengembangkan solusi CV untuk use case spesifik</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">Homework/Assignment</div>
+            <ul>
+              <li>Eksplorasi Google Lens dengan 10 objek berbeda</li>
+              <li>Dokumentasikan hasil dan akurasinya</li>
+              <li>Identifikasi 3 use case CV di tempat kerja Anda</li>
+              <li>Join komunitas Computer Vision Indonesia</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="card-title">Resources untuk Dipelajari</div>
+            <ul>
+              <li>Teachable Machine tutorial (30 menit)</li>
+              <li>OpenCV Python tutorial basics</li>
+              <li>YouTube: "What is Computer Vision?" - Computerphile</li>
+              <li>Paper: "ImageNet Classification with Deep CNNs"</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 24: Q&A Session -->
+      <div class="slide">
+        <h2>Tanya Jawab</h2>
+        <div class="section-box">
+          <h3>Frequently Asked Questions</h3>
+          <div class="card" style="margin-bottom: 20px">
+            <div class="card-title">
+              Q: Apakah perlu background matematika yang kuat?
+            </div>
+            <p>
+              <strong>A:</strong> Untuk pemula, tidak wajib. Tools no-code
+              seperti Teachable Machine bisa digunakan tanpa matematika
+              kompleks. Namun untuk development advanced, pemahaman linear
+              algebra dan statistik akan sangat membantu.
+            </p>
+          </div>
+          <div class="card" style="margin-bottom: 20px">
+            <div class="card-title">
+              Q: Berapa lama waktu untuk belajar Computer Vision?
+            </div>
+            <p>
+              <strong>A:</strong> Tergantung target Anda. Untuk pemahaman
+              konsep: 1-2 bulan. Untuk implementasi sederhana: 3-6 bulan. Untuk
+              menjadi expert: 1-2 tahun dengan practice konsisten.
+            </p>
+          </div>
+          <div class="card" style="margin-bottom: 20px">
+            <div class="card-title">
+              Q: Hardware apa yang dibutuhkan untuk belajar?
+            </div>
+            <p>
+              <strong>A:</strong> Laptop dengan RAM 8GB+ sudah cukup untuk
+              belajar. GPU tidak wajib di awal, bisa gunakan Google Colab untuk
+              training model.
+            </p>
+          </div>
+        </div>
+        <div class="highlight-box">
+          <h3>Silakan Bertanya!</h3>
+          <p class="center-text large-text">
+            Waktu untuk pertanyaan dari peserta
+          </p>
+        </div>
+      </div>
+
+      <!-- Slide 25: Conclusion & Thank You -->
+      <div class="slide">
+        <h2>Kesimpulan</h2>
+        <div class="section-box">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>
+              <strong>Computer Vision</strong> adalah teknologi yang
+              memungkinkan komputer untuk "melihat" dan memahami dunia visual
+            </li>
+            <li>
+              <strong>Tiga tugas utama:</strong> Classification (apa), Detection
+              (apa & dimana), Segmentation (detail pixel)
+            </li>
+            <li>
+              <strong>Aplikasi sangat luas</strong> dan sudah kita gunakan dalam
+              kehidupan sehari-hari tanpa disadari
+            </li>
+            <li>
+              <strong>Tools tersedia</strong> dari level pemula (no-code) hingga
+              advanced (coding)
+            </li>
+            <li>
+              <strong>Peluang karir besar</strong> di berbagai industri dengan
+              kompensasi yang menarik
+            </li>
+            <li>
+              <strong>Teknologi terus berkembang</strong> dengan tren multimodal
+              AI dan edge computing
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-counter">
+      <span id="slideNumber">1</span> / <span id="totalSlides">25</span>
+    </div>
+
+    <div class="navigation">
+      <button class="nav-btn" onclick="changeSlide(-1)">← Sebelumnya</button>
+      <button class="nav-btn" onclick="changeSlide(1)">Selanjutnya →</button>
+    </div>
+
+    <script>
+      let currentSlide = 0;
+      const slides = document.querySelectorAll(".slide");
+      const totalSlides = slides.length;
+
+      document.getElementById("totalSlides").textContent = totalSlides;
+
+      function showSlide(n) {
+        slides[currentSlide].classList.remove("active");
+        currentSlide = (n + totalSlides) % totalSlides;
+        slides[currentSlide].classList.add("active");
+        document.getElementById("slideNumber").textContent = currentSlide + 1;
+      }
+
+      function changeSlide(direction) {
+        showSlide(currentSlide + direction);
+      }
+
+      // Keyboard navigation
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+          changeSlide(-1);
+        } else if (
+          e.key === "ArrowRight" ||
+          e.key === "ArrowDown" ||
+          e.key === " "
+        ) {
+          changeSlide(1);
+        } else if (e.key === "Home") {
+          showSlide(0);
+        } else if (e.key === "End") {
+          showSlide(totalSlides - 1);
+        }
+      });
+
+      // Demo simulation functions
+      const classificationImages = [
+        { name: "Golden Retriever", type: "Dog", confidence: 0.94 },
+        { name: "Persian Cat", type: "Cat", confidence: 0.87 },
+        { name: "Labrador", type: "Dog", confidence: 0.91 },
+        { name: "Siamese Cat", type: "Cat", confidence: 0.89 },
+      ];
+
+      const detectionScenes = [
+        {
+          name: "Street Scene",
+          objects: [
+            { class: "Car", bbox: [50, 80, 120, 60], confidence: 0.92 },
+            { class: "Person", bbox: [200, 100, 30, 80], confidence: 0.87 },
+            {
+              class: "Traffic Light",
+              bbox: [300, 40, 20, 50],
+              confidence: 0.95,
+            },
+          ],
+        },
+        {
+          name: "Living Room",
+          objects: [
+            { class: "Sofa", bbox: [30, 120, 150, 80], confidence: 0.89 },
+            { class: "Cat", bbox: [180, 150, 40, 30], confidence: 0.84 },
+            { class: "TV", bbox: [250, 80, 80, 50], confidence: 0.91 },
+          ],
+        },
+      ];
+
+      let currentClassificationIndex = 0;
+      let currentSceneIndex = 0;
+      let selectedClass = "cat";
+      let trainingCounts = { cat: 0, dog: 0 };
+
+      function runClassificationDemo() {
+        const image = classificationImages[currentClassificationIndex];
+        document.getElementById(
+          "demo-image"
+        ).textContent = `Image: ${image.name}`;
+
+        setTimeout(() => {
+          document.getElementById("classification-result").innerHTML = `
+                    <div style="margin-bottom: 10px;"><strong>Predicted Class:</strong> ${
+                      image.type
+                    }</div>
+                    <div style="margin-bottom: 10px;"><strong>Confidence:</strong> ${(
+                      image.confidence * 100
+                    ).toFixed(1)}%</div>
+                    <div style="background: #e8f5e8; padding: 10px; border-radius: 4px; border-left: 3px solid #27ae60;">
+                        <strong>Status:</strong> Classification Complete
+                    </div>
+                `;
+          currentClassificationIndex =
+            (currentClassificationIndex + 1) % classificationImages.length;
+        }, 1000);
+      }
+
+      function runDetectionDemo() {
+        const scene = detectionScenes[currentSceneIndex];
+        document.getElementById(
+          "detection-image"
+        ).textContent = `Scene: ${scene.name}`;
+
+        setTimeout(() => {
+          let resultHTML = `<div style="margin-bottom: 15px;"><strong>Scene:</strong> ${scene.name}</div>`;
+          resultHTML += `<div style="margin-bottom: 10px;"><strong>Objects Detected:</strong> ${scene.objects.length}</div>`;
+
+          scene.objects.forEach((obj, index) => {
+            resultHTML += `<div style="margin: 8px 0; padding: 8px; background: #f0f8ff; border-radius: 3px; font-size: 0.9em;">
+                        ${index + 1}. ${obj.class} (${(
+              obj.confidence * 100
+            ).toFixed(1)}%)
+                    </div>`;
+          });
+
+          document.getElementById("detection-result").innerHTML = resultHTML;
+          currentSceneIndex = (currentSceneIndex + 1) % detectionScenes.length;
+        }, 1500);
+      }
+
+      function selectClass(className) {
+        selectedClass = className;
+        document.getElementById("current-class").textContent =
+          className.charAt(0).toUpperCase() + className.slice(1);
+        document.getElementById("image-count").textContent =
+          trainingCounts[className];
+
+        // Update button styles
+        document.querySelectorAll(".class-btn").forEach((btn) => {
+          btn.style.borderColor = "#e1e8ed";
+          btn.style.backgroundColor = "white";
+        });
+        document.getElementById(className + "-btn").style.borderColor =
+          "#3498db";
+        document.getElementById(className + "-btn").style.backgroundColor =
+          "#f0f8ff";
+      }
+
+      function addTrainingImage() {
+        trainingCounts[selectedClass]++;
+        document.getElementById("image-count").textContent =
+          trainingCounts[selectedClass];
+
+        const totalImages = trainingCounts.cat + trainingCounts.dog;
+        if (totalImages >= 4) {
+          document.getElementById("training-status").textContent =
+            "Ready to train model with " + totalImages + " images";
+        } else {
+          document.getElementById("training-status").textContent =
+            "Add more images - minimum 2 per class recommended";
+        }
+      }
+
+      function testPrediction() {
+        const totalImages = trainingCounts.cat + trainingCounts.dog;
+        if (totalImages < 2) {
+          document.getElementById("prediction-area").innerHTML =
+            '<p style="color: #e74c3c;">Please add training images first</p>';
+          return;
+        }
+
+        document.getElementById("prediction-area").innerHTML =
+          '<p style="color: #3498db;">Processing...</p>';
+
+        setTimeout(() => {
+          const randomPrediction = Math.random() > 0.5 ? "cat" : "dog";
+          const confidence = 0.7 + Math.random() * 0.25;
+          const otherConfidence = 1 - confidence;
+
+          document.getElementById("prediction-area").innerHTML = `
+                    <p><strong>Prediction:</strong> ${
+                      randomPrediction.charAt(0).toUpperCase() +
+                      randomPrediction.slice(1)
+                    }</p>
+                    <p><strong>Confidence:</strong> ${(
+                      confidence * 100
+                    ).toFixed(1)}%</p>
+                `;
+
+          document.getElementById("confidence-bars").innerHTML = `
+                    <div style="margin: 10px 0;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.9em; margin-bottom: 5px;">
+                            <span>Cat</span>
+                            <span>${(randomPrediction === "cat"
+                              ? confidence * 100
+                              : otherConfidence * 100
+                            ).toFixed(1)}%</span>
+                        </div>
+                        <div style="background: #e1e8ed; height: 10px; border-radius: 5px;">
+                            <div style="background: #3498db; height: 100%; width: ${
+                              randomPrediction === "cat"
+                                ? confidence * 100
+                                : otherConfidence * 100
+                            }%; border-radius: 5px; transition: width 0.5s;"></div>
+                        </div>
+                    </div>
+                    <div style="margin: 10px 0;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.9em; margin-bottom: 5px;">
+                            <span>Dog</span>
+                            <span>${(randomPrediction === "dog"
+                              ? confidence * 100
+                              : otherConfidence * 100
+                            ).toFixed(1)}%</span>
+                        </div>
+                        <div style="background: #e1e8ed; height: 10px; border-radius: 5px;">
+                            <div style="background: #e74c3c; height: 100%; width: ${
+                              randomPrediction === "dog"
+                                ? confidence * 100
+                                : otherConfidence * 100
+                            }%; border-radius: 5px; transition: width 0.5s;"></div>
+                        </div>
+                    </div>
+                `;
+        }, 1500);
+      }
+
+      function loadScene() {
+        const scene = detectionScenes[currentSceneIndex];
+        document.getElementById("yolo-canvas").innerHTML = `
+                <div style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 5px 10px; border-radius: 3px; font-size: 0.8em;">
+                    Scene: ${scene.name}
+                </div>
+                <div style="position: absolute; bottom: 10px; left: 10px; color: #7f8c8d; font-size: 0.9em;">
+                    Objects in scene: ${scene.objects.length}
+                </div>
+            `;
+        document.getElementById("detected-objects").innerHTML =
+          '<p style="color: #7f8c8d; font-style: italic;">Run YOLO to detect objects</p>';
+      }
+
+      function runYOLO() {
+        const scene = detectionScenes[currentSceneIndex];
+        const threshold = parseFloat(
+          document.getElementById("confidence-slider").value
+        );
+        const startTime = Date.now();
+
+        document.getElementById("processing-time").textContent =
+          "Processing...";
+        document.getElementById("object-count").textContent = "0";
+
+        setTimeout(() => {
+          const filteredObjects = scene.objects.filter(
+            (obj) => obj.confidence >= threshold
+          );
+          const processingTime = Date.now() - startTime + Math.random() * 200;
+
+          // Clear canvas and redraw with bounding boxes
+          let canvasHTML = `
+                    <div style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 5px 10px; border-radius: 3px; font-size: 0.8em;">
+                        Scene: ${scene.name}
+                    </div>
+                `;
+
+          filteredObjects.forEach((obj, index) => {
+            const colors = [
+              "#e74c3c",
+              "#3498db",
+              "#27ae60",
+              "#f39c12",
+              "#9b59b6",
+            ];
+            const color = colors[index % colors.length];
+
+            canvasHTML += `
+                        <div style="position: absolute; left: ${
+                          obj.bbox[0]
+                        }px; top: ${obj.bbox[1]}px; width: ${
+              obj.bbox[2]
+            }px; height: ${
+              obj.bbox[3]
+            }px; border: 2px solid ${color}; background: rgba(255,255,255,0.1);">
+                            <div style="background: ${color}; color: white; padding: 2px 6px; font-size: 0.7em; position: absolute; top: -20px; left: 0; border-radius: 2px;">
+                                ${obj.class} ${(obj.confidence * 100).toFixed(
+              0
+            )}%
+                            </div>
+                        </div>
+                    `;
+          });
+
+          document.getElementById("yolo-canvas").innerHTML = canvasHTML;
+          document.getElementById("object-count").textContent =
+            filteredObjects.length;
+          document.getElementById("processing-time").textContent =
+            Math.round(processingTime) + "ms";
+
+          // Update detected objects list
+          let objectsHTML = "";
+          filteredObjects.forEach((obj, index) => {
+            objectsHTML += `
+                        <div style="margin: 8px 0; padding: 10px; border-left: 3px solid ${
+                          [
+                            "#e74c3c",
+                            "#3498db",
+                            "#27ae60",
+                            "#f39c12",
+                            "#9b59b6",
+                          ][index % 5]
+                        }; background: #f8f9fa;">
+                            <strong>${obj.class}</strong><br>
+                            <span style="font-size: 0.9em; color: #7f8c8d;">
+                                Confidence: ${(obj.confidence * 100).toFixed(
+                                  1
+                                )}%<br>
+                                BBox: [${obj.bbox.join(", ")}]
+                            </span>
+                        </div>
+                    `;
+          });
+
+          document.getElementById("detected-objects").innerHTML =
+            objectsHTML ||
+            '<p style="color: #e74c3c; font-style: italic;">No objects detected above confidence threshold</p>';
+
+          currentSceneIndex = (currentSceneIndex + 1) % detectionScenes.length;
+        }, 1000 + Math.random() * 1000);
+      }
+
+      function clearDetection() {
+        document.getElementById("yolo-canvas").innerHTML = `
+                <div class="canvas-placeholder" style="display: flex; align-items: center; justify-content: center; height: 100%; color: #7f8c8d; font-style: italic;">
+                    Klik "Load Scene" untuk mulai deteksi
+                </div>
+            `;
+        document.getElementById("object-count").textContent = "0";
+        document.getElementById("processing-time").textContent = "0ms";
+        document.getElementById("detected-objects").innerHTML =
+          '<p style="color: #7f8c8d; font-style: italic;">Detected objects akan muncul di sini</p>';
+      }
+
+      function updateConfidence() {
+        const threshold = parseFloat(
+          document.getElementById("confidence-slider").value
+        );
+        document.getElementById("confidence-threshold").textContent =
+          threshold.toFixed(1);
+      }
+
+      // Initialize demo
+      document.addEventListener("DOMContentLoaded", function () {
+        if (document.getElementById("current-class")) {
+          selectClass("cat");
+        }
+      });
+    </script>
+  </body>
+</html>
